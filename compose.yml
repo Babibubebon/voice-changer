@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  vc:
+    image: vcclient
+    build:
+      context: .
+      dockerfile: ./docker_vcclient/Dockerfile.rocm
+    ports:
+      - "18888:18888"
+    environment:
+      - EX_IP=0.0.0.0
+      - EX_PORT=18888
+      - LOCAL_UID=1000
+      - LOCAL_GID=1000
+      - PYTHONUNBUFFERED=1
+      # Ref. https://github.com/RadeonOpenCompute/ROCm/issues/1698
+      - HSA_OVERRIDE_GFX_VERSION=10.3.0
+    volumes:
+      - ./docker_vcclient/pretrain:/voice-changer/server/pretrain
+      - ./docker_vcclient/weights:/weights
+    devices:
+      - "/dev/kfd:/dev/kfd"
+      - "/dev/dri:/dev/dri"
+    group_add:
+      - video
+    ipc: host
+    shm_size: 8gb
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    command: >
+      -p 18888 \
+      --https true \
+      --content_vec_500 pretrain/checkpoint_best_legacy_500.pt  \
+      --hubert_base pretrain/hubert_base.pt \
+      --hubert_soft pretrain/hubert/hubert-soft-0d54a1f4.pt \
+      --nsf_hifigan pretrain/nsf_hifigan/model \
+      --hubert_base_jp pretrain/rinna_hubert_base_jp.pt \
+      --model_dir /weights

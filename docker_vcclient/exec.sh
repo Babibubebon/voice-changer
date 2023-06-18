@@ -2,10 +2,11 @@
 
 set -eu
 
-cp -r /weights/* /voice-changer/server/
+mkdir -p /weights/rvc
+# cp -r /weights/* /voice-changer/server/
 # /bin/bash
 
-python3 MMVCServerSIO.py $@
+python3.10 MMVCServerSIO.py $@
 # python3 MMVCServerSIO.py -p 18888 --https true \
 #   --content_vec_500 checkpoint_best_legacy_500.pt \
 #   --hubert_base hubert_base.pt \

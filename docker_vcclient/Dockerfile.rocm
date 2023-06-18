@@ -1,0 +1,37 @@
+FROM rocm/pytorch:latest
+
+RUN apt-get update \
+    && apt-get install -y espeak gosu libsndfile1-dev curl git software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa -y \
+    && apt-get install -y python3.10 python3.10-distutils python3.10-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+
+WORKDIR /
+
+ADD ./server/requirements.rocm.txt .
+RUN pip3.10 install --no-cache-dir --pre torch torchaudio --index-url https://download.pytorch.org/whl/nightly/rocm5.5 \
+    && pip3.10 install --no-cache-dir -r requirements.rocm.txt
+
+ADD . ./voice-changer/
+ADD ./docker_vcclient/setup.sh /voice-changer/server
+ADD ./docker_vcclient/exec.sh /voice-changer/server
+
+RUN chmod 0777 /voice-changer/server
+WORKDIR /voice-changer/server
+
+RUN git clone https://github.com/isletennos/MMVC_Client.git MMVC_Client_v13 \
+    && cd MMVC_Client_v13 && git checkout 04f3fec4fd82dea6657026ec4e1cd80fb29a415c && cd -
+RUN git clone https://github.com/isletennos/MMVC_Client.git MMVC_Client_v15 \
+    && cd MMVC_Client_v15 && git checkout 461cb231b57cbb17243110eaac8435d9cca24a26 && cd -
+RUN git clone https://github.com/StarStringStudio/so-vits-svc.git so-vits-svc-40 \
+    && cd so-vits-svc-40 && git checkout 293fe0bc03a583df17846c715c179152745c1b8d && cd -
+RUN git clone https://github.com/StarStringStudio/so-vits-svc.git so-vits-svc-40v2 \
+    && cd so-vits-svc-40v2 && git checkout 08c70ff3d2f7958820b715db2a2180f4b7f92f8d && cd -
+RUN git clone https://github.com/yxlllc/DDSP-SVC.git DDSP-SVC \
+    && cd DDSP-SVC && git checkout e716efb14aee747492bc6ac1deb07506c26ed550 && cd -
+RUN git clone https://github.com/liujing04/Retrieval-based-Voice-Conversion-WebUI.git RVC \
+    && cd RVC && git checkout 563c64ded9925085f547b13ecafb8eb9c182952b && cd -
+
+ENTRYPOINT ["/bin/bash", "setup.sh"]
