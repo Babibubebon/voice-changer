@@ -10,6 +10,12 @@ In root folder of repos.
 npm run build:docker:vcclient
 ```
 
+For AMD ROCm
+
+```
+npm run build:docker:vcclient:rocm
+```
+
 ## preparation
 
 Store weights of external models in `docker_vcclient/weights`. Which weights should be in the folder depends on which kind of VC you use.
@@ -52,6 +58,12 @@ Use Local Image
 
 ```
 USE_LOCAL=on bash start_docker.sh
+```
+
+For AMD ROCm
+
+```
+docker compose up -d && docker compose logs -f
 ```
 
 ## Push to Repo (only for devs)

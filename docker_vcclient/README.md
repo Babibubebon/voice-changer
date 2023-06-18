@@ -10,6 +10,12 @@
 npm run build:docker:vcclient
 ```
 
+ROCm環境の場合は
+
+```
+npm run build:docker:vcclient:rocm
+```
+
 ## 実行
 
 リポジトリフォルダのルートで
@@ -34,6 +40,12 @@ EX_PORT=<port> bash start_docker.sh
 
 ```
 USE_LOCAL=on bash start_docker.sh
+```
+
+ROCm環境の場合は
+
+```
+docker compose up -d && docker compose logs -f
 ```
 
 ## Push to Repo (only for devs)
